@@ -1,4 +1,4 @@
-A simple file cipher to encrypt/decrypt file.
+A simple tool to encrypt/decrypt file.
 
 #### cipher build
 
