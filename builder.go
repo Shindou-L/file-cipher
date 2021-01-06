@@ -7,17 +7,19 @@ import (
 	"io"
 )
 
-const PasswordLength =  32
+const PasswordLength = 32
 
 type FileCipher interface {
 	Encrypt(input string, writer io.Writer) error
+	EncryptWithReader(reader io.Reader, writer io.Writer) error
 	Decrypt(input string, writer io.Writer) error
+	DecryptWithReader(reader io.Reader, writer io.Writer) error
 }
 
 type fileCipherBuilder struct {
-	block       cipher.Block
-	bufferSize  int
-	signature   []byte
+	block      cipher.Block
+	bufferSize int
+	signature  []byte
 }
 
 func (b *fileCipherBuilder) WithBufferSize(size int) *fileCipherBuilder {
@@ -38,13 +40,13 @@ func (b *fileCipherBuilder) WithSignature(signature []byte) *fileCipherBuilder {
 
 func (b *fileCipherBuilder) Build() FileCipher {
 	return &fileCipher{
-		block: b.block,
+		block:      b.block,
 		bufferSize: b.bufferSize,
-		signature: b.signature,
+		signature:  b.signature,
 	}
 }
 
-func NewFileCipherBuilder(password string) (*fileCipherBuilder, error)  {
+func NewFileCipherBuilder(password string) (*fileCipherBuilder, error) {
 	bytes := []byte(password)
 	if len(bytes) > PasswordLength {
 		return nil, errors.New("password too long")
@@ -53,10 +55,10 @@ func NewFileCipherBuilder(password string) (*fileCipherBuilder, error)  {
 	copy(newPasswordBytes[:len(bytes)], bytes)
 	block, err := aes.NewCipher(newPasswordBytes)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	return &fileCipherBuilder{
-		block: block,
+		block:      block,
 		bufferSize: 1024,
-	},nil
+	}, nil
 }

@@ -9,9 +9,9 @@ import (
 )
 
 type fileCipher struct {
-	block       cipher.Block
-	bufferSize  int
-	signature   []byte
+	block      cipher.Block
+	bufferSize int
+	signature  []byte
 }
 
 func (f *fileCipher) Encrypt(input string, writer io.Writer) error {
@@ -22,6 +22,11 @@ func (f *fileCipher) Encrypt(input string, writer io.Writer) error {
 	defer file.Close()
 	writer.Write(f.signature)
 	return f.handlerFile(file, writer, f.block.Encrypt)
+}
+
+func (f *fileCipher) EncryptWithReader(reader io.Reader, writer io.Writer) error {
+	writer.Write(f.signature)
+	return f.handlerFile(reader, writer, f.block.Encrypt)
 }
 
 func (f *fileCipher) Decrypt(input string, writer io.Writer) error {
@@ -40,8 +45,19 @@ func (f *fileCipher) Decrypt(input string, writer io.Writer) error {
 	return f.handlerFile(file, writer, f.block.Decrypt)
 }
 
+func (f *fileCipher) DecryptWithReader(reader io.Reader, writer io.Writer) error {
+	if len(f.signature) > 0 {
+		signature := make([]byte, len(f.signature))
+		reader.Read(signature)
+		if !bytes.Equal(f.signature, signature) {
+			return errors.New("mismatching signature")
+		}
+	}
+	return f.handlerFile(reader, writer, f.block.Decrypt)
+}
+
 func (f *fileCipher) handlerFile(reader io.Reader, writer io.Writer, bytesHandler func(dst, src []byte)) error {
-	buffer := make([]byte,f.bufferSize)
+	buffer := make([]byte, f.bufferSize)
 	for {
 		n, err := reader.Read(buffer)
 		if err != nil && err != io.EOF {

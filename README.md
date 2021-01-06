@@ -10,16 +10,24 @@ if err != nil {
 fileCipher = builder.WithBufferSize(bufferSize).WithSignature(prefixBytes).Build()
 ```
 
-#### Encrypt
+#### encrypt
 
 ```
 fileCipher.Encrypt(path, writer)
+fileCipher.EncryptWithReader(reader, writer)
 ```
 
-#### Decrypt
+#### decrypt
 
 ```
 fileCipher.Decrypt(path, writer)
+fileCipher.DecryptWithReader(reader, writer)
 ```
 
+#### batch encrypt/decrypt
+
+```
+file-cipher.exe -encrypt -password "your password" -buffer 4096 /path/to/file/*.txt
+file-cipher.exe -decrypt -password "your password" -buffer 4096 /path/to/file/*.encrypt
+```
 
