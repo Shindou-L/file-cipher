@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"crypto/cipher"
 	"file-cipher"
 	"flag"
 	"fmt"
@@ -11,15 +10,12 @@ import (
 )
 
 var (
-	prefixBytes  = []byte("signature for file-cipher")
-	encryptMode  bool
-	decryptMode  bool
-	password     string
-	inputFiles   []string
-	bufferSize   int
-	inputBuffer  []byte
-	outputBuffer []byte
-	aesBlocker   cipher.Block
+	prefixBytes = []byte("signature for file-cipher")
+	encryptMode bool
+	decryptMode bool
+	password    string
+	inputFiles  []string
+	bufferSize  int
 
 	fileCipher file_cipher.FileCipher
 )
@@ -105,11 +101,10 @@ func checkAndInit() {
 	}
 	builder, err := file_cipher.NewFileCipherBuilder(password)
 	if err != nil {
-		fmt.Println("invalid password:",err)
+		fmt.Println("invalid password:", err)
 		os.Exit(1)
 	}
 	fileCipher = builder.WithBufferSize(bufferSize).WithSignature(prefixBytes).Build()
-	outputBuffer = make([]byte, bufferSize)
 }
 
 func init() {
